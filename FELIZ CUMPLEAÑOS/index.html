@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feliz Cumpleaños Mariclus 💜</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000000; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; }
+
+        /* ============================================================
+           PANTALLA DE INICIO
+           ============================================================ */
+        #intro-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, #15101f 0%, #050208 70%);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            transition: opacity 1.8s ease-in-out;
+        }
+        .intro-card {
+            position: relative;
+            z-index: 2;
+            background-color: #0a0a0f;
+            padding: 44px 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            border: 1px solid rgba(179, 111, 232, 0.3);
+            max-width: 400px;
+            width: 90%;
+            animation: brilloCard 4s ease-in-out infinite;
+        }
+        @keyframes brilloCard {
+            0%, 100% { box-shadow: 0 10px 40px rgba(0,0,0,0.9), 0 0 12px rgba(179, 111, 232, 0.2); }
+            50%      { box-shadow: 0 10px 40px rgba(0,0,0,0.9), 0 0 32px rgba(179, 111, 232, 0.5); }
+        }
+
+        /* Título con brillo que recorre las letras */
+        .intro-title {
+            font-size: 2rem;
+            margin-bottom: 14px;
+            font-family: 'Georgia', serif;
+            line-height: 1.2;
+            background: linear-gradient(90deg, #b36fe8 0%, #e9d9fb 25%, #b36fe8 50%, #8e3fd6 75%, #b36fe8 100%);
+            background-size: 250% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            filter: drop-shadow(0 0 8px rgba(179, 111, 232, 0.4));
+            animation: brilloTitulo 5s linear infinite;
+        }
+        @keyframes brilloTitulo { to { background-position: 250% center; } }
+
+        /* Divisor con flor al centro */
+        .divisor {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 0 auto 18px auto;
+            width: 80%;
+        }
+        .divisor .linea {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(179, 111, 232, 0.8), transparent);
+        }
+        .divisor svg { width: 26px; height: 26px; animation: girar 14s linear infinite; }
+
+        /* Imagen de portada (reemplaza a los osos) */
+        .intro-photo {
+            display: none; /* se muestra cuando la imagen carga bien */
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #b36fe8;
+            box-shadow: 0 0 25px rgba(179, 111, 232, 0.55);
+            margin: 0 auto 20px auto;
+        }
+        /* Osos de respaldo, solo se ven si la imagen no carga */
+        .intro-bears {
+            display: none;
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+        .intro-subtitle {
+            font-size: 1.1rem;
+            color: #ffffff;
+            margin-bottom: 28px;
+            opacity: 0.9;
+        }
+        #start-btn {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            color: #ffffff;
+            background-color: #b36fe8;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 15px rgba(179, 111, 232, 0.5);
+            animation: latido 2.4s ease-in-out infinite;
+        }
+        @keyframes latido {
+            0%, 100% { transform: scale(1); }
+            50%      { transform: scale(1.05); }
+        }
+        #start-btn:hover {
+            animation: none;
+            transform: scale(1.08);
+            box-shadow: 0 0 25px rgba(179, 111, 232, 0.8);
+        }
+        #intro-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           DECORACIÓN DE LA PORTADA
+           ============================================================ */
+        @keyframes girar { to { transform: rotate(360deg); } }
+
+        /* Flores que giran */
+        .flor {
+            position: absolute;
+            pointer-events: none;
+            filter: drop-shadow(0 0 8px rgba(179, 111, 232, 0.5));
+            animation: girar 40s linear infinite;
+        }
+        .flor.inversa { animation-direction: reverse; }
+
+        /* Flores en las esquinas de la tarjeta */
+        .flor-card-1 { width: 84px; height: 84px; top: -38px; left: -34px; z-index: 3; }
+        .flor-card-2 { width: 64px; height: 64px; top: -28px; right: -24px; z-index: 3; }
+        .flor-card-3 { width: 60px; height: 60px; bottom: -26px; left: -22px; z-index: 3; }
+        .flor-card-4 { width: 90px; height: 90px; bottom: -40px; right: -34px; z-index: 3; }
+
+        /* Flores grandes y tenues de fondo */
+        .flor-fondo { z-index: 0; opacity: 0.4; }
+        .fondo-1 { width: 220px; height: 220px; top: -70px; left: -70px; }
+        .fondo-2 { width: 170px; height: 170px; top: -50px; right: -55px; }
+        .fondo-3 { width: 150px; height: 150px; top: 42%; left: -75px; }
+        .fondo-4 { width: 180px; height: 180px; top: 38%; right: -90px; }
+
+        /* Guirnalda de florcitas en el borde de la tarjeta */
+        .guirnalda {
+            position: absolute;
+            left: 62px;
+            right: 62px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 3;
+            pointer-events: none;
+        }
+        .guirnalda.arriba { top: -15px; }
+        .guirnalda.abajo  { bottom: -15px; }
+        .florcita {
+            filter: drop-shadow(0 0 5px rgba(179, 111, 232, 0.65));
+            animation: pulso 3s ease-in-out infinite;
+        }
+        @keyframes pulso {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50%      { transform: scale(1.18) rotate(20deg); }
+        }
+
+        /* Jardín de flores con tallo, abajo de la pantalla */
+        .planta {
+            position: absolute;
+            bottom: -8px;
+            z-index: 0;
+            aspect-ratio: 1 / 2;
+            transform-origin: 50% 100%;
+            animation: mecer 4.5s ease-in-out infinite alternate;
+            filter: drop-shadow(0 0 10px rgba(179, 111, 232, 0.3));
+            pointer-events: none;
+        }
+        @keyframes mecer {
+            from { transform: rotate(-3.5deg); }
+            to   { transform: rotate(3.5deg); }
+        }
+
+        /* Pétalos que caen */
+        #petalos, #destellos {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .petalo {
+            position: absolute;
+            top: -30px;
+            background: #b36fe8;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0;
+            box-shadow: 0 0 6px rgba(179, 111, 232, 0.65);
+            animation: caer linear infinite;
+        }
+        @keyframes caer {
+            0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.85; }
+            100% { transform: translateY(110vh) translateX(50px) rotate(540deg); opacity: 0.1; }
+        }
+
+        /* Destellos que titilan */
+        .destello {
+            position: absolute;
+            color: #e9d9fb;
+            text-shadow: 0 0 8px #b36fe8, 0 0 14px rgba(179, 111, 232, 0.65);
+            animation: titilar ease-in-out infinite;
+        }
+        @keyframes titilar {
+            0%, 100% { opacity: 0.1; transform: scale(0.6); }
+            50%      { opacity: 1;   transform: scale(1.2); }
+        }
+
+        /* Luciérnagas que flotan hacia arriba */
+        .luciernaga {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #d9a8f5;
+            box-shadow: 0 0 10px 3px rgba(179, 111, 232, 0.8);
+            opacity: 0;
+            animation: flotar ease-in-out infinite;
+        }
+        @keyframes flotar {
+            0%   { transform: translate(0, 0); opacity: 0; }
+            20%  { opacity: 0.9; }
+            50%  { transform: translate(24px, -70px); }
+            80%  { opacity: 0.8; }
+            100% { transform: translate(-16px, -150px); opacity: 0; }
+        }
+
+        /* Celulares */
+        @media (max-width: 480px) {
+            .intro-card { padding: 38px 22px; }
+            .intro-title { font-size: 1.7rem; }
+            .flor-card-1 { width: 62px; height: 62px; top: -28px; left: -20px; }
+            .flor-card-2 { width: 48px; height: 48px; top: -22px; right: -16px; }
+            .flor-card-3 { width: 46px; height: 46px; bottom: -20px; left: -14px; }
+            .flor-card-4 { width: 64px; height: 64px; bottom: -28px; right: -20px; }
+            .fondo-1 { width: 150px; height: 150px; }
+            .fondo-2 { width: 120px; height: 120px; }
+            .fondo-3, .fondo-4 { display: none; }
+            .guirnalda { left: 44px; right: 44px; }
+        }
+
+        /* --- BOTÓN DE MÚSICA --- */
+        #music-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1px solid rgba(179, 111, 232, 0.6);
+            background-color: rgba(10, 10, 15, 0.75);
+            color: #c084f5;
+            font-size: 1.3rem;
+            cursor: pointer;
+            z-index: 200;
+            display: none; /* aparece después de abrir el regalo */
+            box-shadow: 0 0 12px rgba(179, 111, 232, 0.4);
+        }
+
+        /* --- TEXTOS FLOTANTES --- */
+        .floating-label {
+            color: #c084f5;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 10px #000;
+            text-align: center;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dibujos reutilizables: flor, florcita y planta con tallo -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <!-- Flor grande -->
+            <symbol id="girasol" viewBox="0 0 100 100">
+                <g fill="#a855f7" stroke="#7c2ed6" stroke-width="1">
+                    <ellipse cx="50" cy="18" rx="9" ry="17"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(30 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(60 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(90 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(120 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(150 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(180 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(210 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(240 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(270 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(300 50 50)"/>
+                    <ellipse cx="50" cy="18" rx="9" ry="17" transform="rotate(330 50 50)"/>
+                </g>
+                <g fill="#d9b3f5">
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(15 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(45 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(75 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(105 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(135 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(165 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(195 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(225 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(255 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(285 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(315 50 50)"/>
+                    <ellipse cx="50" cy="26" rx="7" ry="12" transform="rotate(345 50 50)"/>
+                </g>
+                <circle cx="50" cy="50" r="17" fill="#3a1a5c"/>
+                <circle cx="50" cy="50" r="12" fill="#4e2380"/>
+                <circle cx="50" cy="50" r="6" fill="#2a1142"/>
+            </symbol>
+
+            <!-- Florcita de 5 pétalos redondos -->
+            <symbol id="florcita" viewBox="0 0 100 100">
+                <g fill="#b36fe8" stroke="#8e3fd6" stroke-width="2">
+                    <circle cx="50" cy="24" r="17"/>
+                    <circle cx="74.7" cy="42" r="17"/>
+                    <circle cx="65.3" cy="71" r="17"/>
+                    <circle cx="34.7" cy="71" r="17"/>
+                    <circle cx="25.3" cy="42" r="17"/>
+                </g>
+                <circle cx="50" cy="50" r="11" fill="#6b21a8"/>
+            </symbol>
+
+            <!-- Planta: tallo + hojas + flor -->
+            <symbol id="planta" viewBox="0 0 100 200">
+                <path d="M50 92 L50 200" stroke="#2f7d2a" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <ellipse cx="34" cy="150" rx="15" ry="7" fill="#3f9b34" transform="rotate(-35 34 150)"/>
+                <ellipse cx="66" cy="125" rx="15" ry="7" fill="#4caf3a" transform="rotate(35 66 125)"/>
+                <ellipse cx="36" cy="112" rx="11" ry="5" fill="#4caf3a" transform="rotate(-30 36 112)"/>
+                <use href="#girasol" x="8" y="8" width="84" height="84"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <!-- La canción se define en NOMBRE_MUSICA, dentro del script -->
+    <audio id="bg-music" loop preload="auto"></audio>
+
+    <div id="intro-screen">
+
+        <!-- Pétalos, destellos y luciérnagas (se generan con el script) -->
+        <div id="petalos"></div>
+        <div id="destellos"></div>
+
+        <!-- Flores grandes de fondo -->
+        <svg class="flor flor-fondo fondo-1" viewBox="0 0 100 100"><use href="#girasol"/></svg>
+        <svg class="flor flor-fondo fondo-2 inversa" viewBox="0 0 100 100"><use href="#girasol"/></svg>
+        <svg class="flor flor-fondo fondo-3 inversa" viewBox="0 0 100 100"><use href="#girasol"/></svg>
+        <svg class="flor flor-fondo fondo-4" viewBox="0 0 100 100"><use href="#girasol"/></svg>
+
+        <!-- Jardín de flores con tallo, abajo de la pantalla -->
+        <svg class="planta" style="left: 1%;  width: clamp(54px, 8vw, 100px);  animation-delay: -0.5s;" viewBox="0 0 100 200"><use href="#planta"/></svg>
+        <svg class="planta" style="left: 8%;  width: clamp(70px, 11vw, 135px); animation-delay: -2s;"   viewBox="0 0 100 200"><use href="#planta"/></svg>
+        <svg class="planta" style="left: 17%; width: clamp(48px, 7vw, 90px);   animation-delay: -3.2s;" viewBox="0 0 100 200"><use href="#planta"/></svg>
+        <svg class="planta" style="right: 1%; width: clamp(56px, 9vw, 110px);  animation-delay: -1.2s;" viewBox="0 0 100 200"><use href="#planta"/></svg>
+        <svg class="planta" style="right: 9%; width: clamp(72px, 12vw, 140px); animation-delay: -2.6s;" viewBox="0 0 100 200"><use href="#planta"/></svg>
+        <svg class="planta" style="right: 19%; width: clamp(46px, 7vw, 88px);  animation-delay: -3.8s;" viewBox="0 0 100 200"><use href="#planta"/></svg>
+
+        <div class="intro-card">
+            <!-- Flores en las esquinas de la tarjeta -->
+            <svg class="flor flor-card-1" viewBox="0 0 100 100"><use href="#girasol"/></svg>
+            <svg class="flor flor-card-2 inversa" viewBox="0 0 100 100"><use href="#girasol"/></svg>
+            <svg class="flor flor-card-3 inversa" viewBox="0 0 100 100"><use href="#girasol"/></svg>
+            <svg class="flor flor-card-4" viewBox="0 0 100 100"><use href="#girasol"/></svg>
+
+            <!-- Guirnaldas de florcitas (se generan con el script) -->
+            <div class="guirnalda arriba"></div>
+            <div class="guirnalda abajo"></div>
+
+            <h1 class="intro-title">Feliz<br>Cumpleaños</h1>
+
+            <div class="divisor">
+                <span class="linea"></span>
+                <svg viewBox="0 0 100 100"><use href="#girasol"/></svg>
+                <span class="linea"></span>
+            </div>
+
+            <img id="intro-photo" class="intro-photo" alt="Para ti">
+            <div id="intro-bears" class="intro-bears">🧸🧸</div>
+            <p class="intro-subtitle">Mariclus Laurencio</p>
+            <button id="start-btn">ABRIR MI REGALO</button>
+        </div>
+    </div>
+
+    <button id="music-btn" aria-label="Silenciar o activar música">🔊</button>
+
+    <div id="canvas-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+
+    <script>
+        // ==========================================================
+        //  CONFIGURACIÓN: cambia estos nombres por los de tus archivos
+        //  (con su extensión, en la misma carpeta que este HTML)
+        // ==========================================================
+        const NOMBRE_PORTADA = 'portada.jpg';   // imagen de la pantalla de inicio
+        const NOMBRE_MUSICA  = 'musica.mp3';    // tu canción
+
+        // Cantidad de decoraciones en la portada (sube o baja los números)
+        const CANTIDAD_PETALOS     = 28;
+        const CANTIDAD_DESTELLOS   = 26;
+        const CANTIDAD_LUCIERNAGAS = 16;
+        const FLORCITAS_POR_GUIRNALDA = 8;
+
+        // --- IMAGEN DE PORTADA (reemplaza a los osos) ---
+        const introPhoto = document.getElementById('intro-photo');
+        const introBears = document.getElementById('intro-bears');
+        introPhoto.addEventListener('load', () => { introPhoto.style.display = 'block'; });
+        introPhoto.addEventListener('error', () => {
+            console.warn('No se encontró la imagen de portada: ' + NOMBRE_PORTADA);
+            introBears.style.display = 'block'; // si falla, se muestran los osos
+        });
+        introPhoto.src = encodeURI(NOMBRE_PORTADA);
+
+        // --- DECORACIÓN DE LA PORTADA ---
+        // Pétalos cayendo
+        const petalosBox = document.getElementById('petalos');
+        for (let i = 0; i < CANTIDAD_PETALOS; i++) {
+            const p = document.createElement('div');
+            const escala = 0.6 + Math.random() * 0.9;
+            p.className = 'petalo';
+            p.style.left = (Math.random() * 100) + 'vw';
+            p.style.width = (12 * escala) + 'px';
+            p.style.height = (18 * escala) + 'px';
+            p.style.animationDuration = (7 + Math.random() * 8) + 's';
+            p.style.animationDelay = (-Math.random() * 12) + 's'; // delay negativo: ya empiezan cayendo
+            petalosBox.appendChild(p);
+        }
+
+        // Destellos que titilan y luciérnagas que flotan
+        const destellosBox = document.getElementById('destellos');
+        for (let i = 0; i < CANTIDAD_DESTELLOS; i++) {
+            const d = document.createElement('span');
+            d.className = 'destello';
+            d.textContent = Math.random() > 0.5 ? '✦' : '✧';
+            d.style.left = (Math.random() * 100) + '%';
+            d.style.top = (Math.random() * 100) + '%';
+            d.style.fontSize = (8 + Math.random() * 12) + 'px';
+            d.style.animationDuration = (2 + Math.random() * 3) + 's';
+            d.style.animationDelay = (-Math.random() * 5) + 's';
+            destellosBox.appendChild(d);
+        }
+        for (let i = 0; i < CANTIDAD_LUCIERNAGAS; i++) {
+            const l = document.createElement('span');
+            l.className = 'luciernaga';
+            l.style.left = (Math.random() * 100) + '%';
+            l.style.top = (35 + Math.random() * 60) + '%';
+            l.style.animationDuration = (6 + Math.random() * 6) + 's';
+            l.style.animationDelay = (-Math.random() * 10) + 's';
+            destellosBox.appendChild(l);
+        }
+
+        // Guirnaldas de florcitas en el borde de la tarjeta
+        document.querySelectorAll('.guirnalda').forEach((guirnalda) => {
+            for (let i = 0; i < FLORCITAS_POR_GUIRNALDA; i++) {
+                const tam = (i % 2 === 0 ? 26 : 18) + 'px';
+                const flor = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                flor.setAttribute('viewBox', '0 0 100 100');
+                flor.setAttribute('class', 'florcita');
+                flor.style.width = tam;
+                flor.style.height = tam;
+                flor.style.animationDelay = (i * 0.35) + 's';
+                flor.innerHTML = '<use href="#florcita"/>';
+                guirnalda.appendChild(flor);
+            }
+        });
+
+        // --- 1. CONFIGURACIÓN DEL ENTORNO ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.002);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 140, 25); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const labelRenderer = new THREE.CSS2DRenderer();
+        labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        container.appendChild(labelRenderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, labelRenderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.enabled = false; 
+        controls.target.set(0, 12, 0);
+
+        // --- 2. UNIVERSO DE ESTRELLAS PROFUNDO ---
+        const starsGeo = new THREE.BufferGeometry();
+        const starsCount = 4000; 
+        const starsPos = new Float32Array(starsCount * 3);
+        const starsCol = new Float32Array(starsCount * 3);
+        
+        for(let i=0; i<starsCount; i++) {
+            starsPos[i*3] = (Math.random() - 0.5) * 600;
+            starsPos[i*3+1] = (Math.random() - 0.5) * 600;
+            starsPos[i*3+2] = (Math.random() - 0.5) * 600;
+            
+            const isWhite = Math.random() > 0.8;
+            starsCol[i*3] = isWhite ? 1.0 : 0.75 + Math.random() * 0.2; 
+            starsCol[i*3+1] = isWhite ? 1.0 : 0.6 + Math.random() * 0.2; 
+            starsCol[i*3+2] = 1.0; 
+        }
+        starsGeo.setAttribute('position', new THREE.BufferAttribute(starsPos, 3));
+        starsGeo.setAttribute('color', new THREE.BufferAttribute(starsCol, 3));
+        const starsMat = new THREE.PointsMaterial({ size: 0.9, vertexColors: true, transparent: true, opacity: 0.8 });
+        const universe = new THREE.Points(starsGeo, starsMat);
+        scene.add(universe);
+
+        // --- 3. BASE: GALAXIA ESPIRAL CON REMOLINOS Y AGUJERO NEGRO ---
+        const galaxyGroup = new THREE.Group();
+        scene.add(galaxyGroup);
+
+        const spiralGeo = new THREE.BufferGeometry();
+        const spiralCount = 35000; 
+        const spiralPos = new Float32Array(spiralCount * 3);
+        const spiralCol = new Float32Array(spiralCount * 3);
+        
+        const blackHoleRadius = 4.5;
+        const outerRadius = 70; 
+        const arms = 4;
+
+        for (let i = 0; i < spiralCount; i++) {
+            const t = Math.random();
+            const r = blackHoleRadius + Math.pow(t, 1.4) * (outerRadius - blackHoleRadius);
+            
+            const branch = i % arms;
+            const branchAngle = (branch / arms) * Math.PI * 2;
+            const spin = 0.65; 
+            const spread = (Math.random() - 0.5) * 0.4; 
+            const angle = branchAngle + (r * spin) + spread;
+            
+            spiralPos[i*3] = Math.cos(angle) * r;
+            spiralPos[i*3+1] = (Math.random() - 0.5) * 0.5; 
+            spiralPos[i*3+2] = Math.sin(angle) * r;
+
+            const isCenter = r < blackHoleRadius + 3.0;
+            const mix = r / outerRadius;
+            
+            spiralCol[i*3] = isCenter ? 0.92 : 0.65 + mix * 0.25;
+            spiralCol[i*3+1] = isCenter ? 0.85 : 0.2 + mix * 0.15;
+            spiralCol[i*3+2] = 1.0;
+        }
+        spiralGeo.setAttribute('position', new THREE.BufferAttribute(spiralPos, 3));
+        spiralGeo.setAttribute('color', new THREE.BufferAttribute(spiralCol, 3));
+        
+        const spiralMat = new THREE.PointsMaterial({ size: 0.45, vertexColors: true, blending: THREE.AdditiveBlending });
+        const spiralBase = new THREE.Points(spiralGeo, spiralMat);
+        galaxyGroup.add(spiralBase);
+
+        // --- 4. FLOR VERTICAL FLOTANDO ARRIBA ---
+        const flowerGroup = new THREE.Group();
+        flowerGroup.position.y = 26; 
+        scene.add(flowerGroup);
+
+        const flowerGeo = new THREE.BufferGeometry();
+        const flowerCount = 12000; 
+        const flowerPos = new Float32Array(flowerCount * 3);
+        const flowerCol = new Float32Array(flowerCount * 3);
+
+        const coreR = 6; 
+        const petalLength = 8; 
+
+        for (let i = 0; i < flowerCount; i++) {
+            let isCore = i < 4500; 
+
+            if (isCore) {
+                const r = Math.sqrt(Math.random()) * coreR;
+                const theta = Math.random() * Math.PI * 2;
+                
+                flowerPos[i*3] = Math.cos(theta) * r; 
+                flowerPos[i*3+1] = Math.sin(theta) * r; 
+                flowerPos[i*3+2] = (Math.random() - 0.5) * 1.5; 
+
+                const rnd = Math.random();
+                flowerCol[i*3] = 0.3 + rnd * 0.15;     
+                flowerCol[i*3+1] = 0.05 + rnd * 0.05;  
+                flowerCol[i*3+2] = 0.45 + rnd * 0.15;               
+            } else {
+                const theta = Math.random() * Math.PI * 2;
+                const maxR = coreR + petalLength * Math.abs(Math.cos(10 * theta / 2)); 
+                const r = coreR + Math.random() * (maxR - coreR);
+
+                flowerPos[i*3] = Math.cos(theta) * r;
+                flowerPos[i*3+1] = Math.sin(theta) * r;
+                flowerPos[i*3+2] = (Math.random() - 0.5) * 0.8;
+
+                flowerCol[i*3] = 0.75 + Math.random() * 0.15; 
+                flowerCol[i*3+1] = 0.25 + Math.random() * 0.15; 
+                flowerCol[i*3+2] = 1.0;
+            }
+        }
+        flowerGeo.setAttribute('position', new THREE.BufferAttribute(flowerPos, 3));
+        flowerGeo.setAttribute('color', new THREE.BufferAttribute(flowerCol, 3));
+        
+        const flowerMat = new THREE.PointsMaterial({ size: 0.65, vertexColors: true });
+        const sunflower = new THREE.Points(flowerGeo, flowerMat);
+        flowerGroup.add(sunflower);
+
+        // --- 5. CARRUSEL AMPLIADO Y DESCONGESTIONADO DE FOTOS Y FRASES ---
+        const orbitGroup = new THREE.Group();
+        orbitGroup.position.y = 12; 
+        scene.add(orbitGroup);
+
+        const frasesTextos = [
+            "FLORES PARA TI 🌻",
+            "CON MUCHO CARIÑO 💛",
+            "FELIZ CUMPLEAÑOS 🌷",
+            "FELIZ DÍA BONITA ✨"
+        ];
+        
+        const fotoRutas = ['foto1.jpg', 'foto2.jpg', 'foto3.jpg', 'foto4.jpg'];
+        const totalItems = 12; 
+        const orbitObjects = [];
+        const textureLoader = new THREE.TextureLoader();
+        const orbitRadius = 48; // Radio mucho más amplio para que no se amontonen
+
+        // Carga la foto probando varias extensiones, así no importa si es .jpg, .jpeg, .png o .webp
+        function cargarFoto(ruta, material) {
+            const nombreBase = ruta.replace(/\.[^.]+$/, '');
+            const extensiones = ['jpg', 'jpeg', 'png', 'webp', 'JPG', 'JPEG', 'PNG'];
+            let intento = 0;
+
+            const probar = () => {
+                if (intento >= extensiones.length) {
+                    console.warn('No se encontró ninguna foto llamada: ' + nombreBase);
+                    return;
+                }
+                const archivo = nombreBase + '.' + extensiones[intento++];
+                textureLoader.load(
+                    archivo,
+                    (textura) => {
+                        material.map = textura;
+                        material.color.set(0xffffff);
+                        material.needsUpdate = true;
+                    },
+                    undefined,
+                    probar // si falla, prueba con la siguiente extensión
+                );
+            };
+            probar();
+        }
+
+        for (let i = 0; i < totalItems; i++) {
+            const angle = (i / totalItems) * Math.PI * 2;
+            const index = i % 4; 
+            
+            const circleGeo = new THREE.CircleGeometry(4, 64);
+            const circleMat = new THREE.MeshBasicMaterial({ 
+                color: 0x333333, // gris oscuro mientras carga la foto
+                side: THREE.DoubleSide
+            });
+            cargarFoto(fotoRutas[index], circleMat);
+            const circleMesh = new THREE.Mesh(circleGeo, circleMat);
+            
+            // Escalón de altura alternado (alto, medio, bajo) para evitar cualquier superposición
+            const heightSteps = [4, -2, 2, -4];
+            const yOffset = heightSteps[i % heightSteps.length];
+
+            circleMesh.position.set(Math.cos(angle) * orbitRadius, yOffset, Math.sin(angle) * orbitRadius);
+            
+            orbitGroup.add(circleMesh);
+            orbitObjects.push(circleMesh);
+
+            const pElement = document.createElement('div');
+            pElement.className = 'floating-label';
+            pElement.textContent = frasesTextos[index];
+            const pLabel = new THREE.CSS2DObject(pElement);
+            pLabel.position.set(0, -5.2, 0); 
+            circleMesh.add(pLabel);
+        }
+
+        // --- 6. MÚSICA + ANIMACIÓN DE ENTRADA (ZOOM) ---
+        const music = document.getElementById('bg-music');
+        const musicBtn = document.getElementById('music-btn');
+        music.src = encodeURI(NOMBRE_MUSICA); // encodeURI permite espacios y tildes en el nombre
+        music.volume = 0.6;
+
+        // Si no encuentra el archivo, el botón muestra ⚠️ y la consola dice qué nombre buscó
+        music.addEventListener('error', () => {
+            console.warn('No se encontró la música. El código busca un archivo llamado: ' + NOMBRE_MUSICA);
+            musicBtn.textContent = '⚠️';
+            musicBtn.title = 'No se encontró: ' + NOMBRE_MUSICA;
+        });
+
+        let isZooming = false;
+        const targetPos = new THREE.Vector3(0, 45, 95); 
+
+        document.getElementById('start-btn').addEventListener('click', () => {
+            const intro = document.getElementById('intro-screen');
+            intro.classList.add('hidden');
+            isZooming = true;
+
+            // Cuando termina el desvanecido se quita la portada (y con ella todas sus animaciones)
+            setTimeout(() => { intro.style.display = 'none'; }, 2000);
+
+            // El clic cuenta como interacción del usuario, por eso el navegador sí deja reproducir
+            music.play().catch((err) => console.warn('No se pudo reproducir la música:', err));
+            musicBtn.style.display = 'block';
+        });
+
+        musicBtn.addEventListener('click', () => {
+            if (music.paused) {
+                music.play();
+                musicBtn.textContent = '🔊';
+            } else {
+                music.pause();
+                musicBtn.textContent = '🔇';
+            }
+        });
+
+        // --- 7. BUCLE DE RENDERIZADO ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const elapsedTime = clock.getElapsedTime();
+
+            if (isZooming) {
+                camera.position.lerp(targetPos, 0.02); 
+                if (camera.position.distanceTo(targetPos) < 1.0) {
+                    isZooming = false;
+                    controls.enabled = true; 
+                }
+            }
+
+            universe.rotation.y = elapsedTime * 0.01;      
+            galaxyGroup.rotation.y = elapsedTime * 0.08; 
+            flowerGroup.rotation.y = Math.sin(elapsedTime * 0.3) * 0.15; 
+            
+            orbitGroup.rotation.y = elapsedTime * 0.05; 
+
+            orbitObjects.forEach((obj, index) => {
+                obj.lookAt(camera.position); 
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+            labelRenderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            labelRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
